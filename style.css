@@ -6,6 +6,7 @@
   --muted: #58634f;
   --green: #dce7c6;
   --lilac: #c7b7e4;
+  --lilac-paper: #eae4f0;
   --line: #d1d7c7;
   --small: .875rem;
   --body: 1rem;
@@ -103,7 +104,7 @@ nav a:hover { text-decoration: underline; }
 .project-note p, .service p { color: var(--muted); }
 .project-note .text-link { margin-top: .75rem; }
 .service + .service { margin-top: 2.5rem; }
-.direction { background: var(--green); }
+.direction { background: var(--lilac-paper); }
 
 .work { background: var(--green); padding-block: 4.5rem; border-radius: 36px 36px 0 0; }
 .work h2 { margin-bottom: 3.5rem; max-width: 18ch; }
@@ -163,6 +164,30 @@ footer a { display: flex; align-items: center; min-height: 44px; }
   .contact { padding-block: 3rem; gap: 1.25rem; }
   footer { flex-wrap: wrap; gap: .5rem; }
   footer > div { gap: 1.5rem; }
+}
+
+@keyframes section-tint {
+  from { background-color: var(--paper); }
+  to { background-color: var(--section-tint); }
+}
+
+@keyframes heading-arrive {
+  from { opacity: .8; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) and (animation-range: entry 0% entry 100%) {
+    .work, .direction {
+      animation: section-tint linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 100%;
+    }
+    .work { --section-tint: var(--green); }
+    .direction { --section-tint: var(--lilac-paper); }
+  }
+
+  #direction-title.arrived { animation: heading-arrive 320ms cubic-bezier(.2, 0, 0, 1); }
 }
 
 @media (prefers-reduced-motion: reduce) {

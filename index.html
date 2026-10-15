@@ -143,5 +143,17 @@
       <a href="https://github.com/avirankatz/avirankatz.github.io" target="_blank" rel="noopener noreferrer">Site source</a>
     </div>
   </footer>
+  <script>
+    if ('IntersectionObserver' in window) {
+      const heading = document.getElementById('direction-title');
+      const observer = new IntersectionObserver(entries => {
+        if (entries.some(entry => entry.isIntersecting)) {
+          heading.classList.add('arrived');
+          observer.disconnect();
+        }
+      }, { threshold: .5 });
+      observer.observe(heading);
+    }
+  </script>
 </body>
 </html>
