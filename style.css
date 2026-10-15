@@ -104,9 +104,22 @@ nav a:hover { text-decoration: underline; }
 .project-note p, .service p { color: var(--muted); }
 .project-note .text-link { margin-top: .75rem; }
 .service + .service { margin-top: 2.5rem; }
-.direction { background: var(--lilac-paper); }
+.direction { --section-tint: var(--lilac-paper); }
+.work { --section-tint: var(--green); padding-block: 4.5rem; }
 
-.work { background: var(--green); padding-block: 4.5rem; border-radius: 36px 36px 0 0; }
+.work, .direction {
+  position: relative;
+  isolation: isolate;
+  --section-inset: clamp(12px, 2.5vw, 40px);
+}
+.work::before, .direction::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--section-tint);
+  clip-path: inset(0 var(--section-inset) round 64px);
+}
 .work h2 { margin-bottom: 3.5rem; max-width: 18ch; }
 .experience { display: grid; grid-template-columns: 1fr 1.6fr; gap: 5rem; }
 .experience + .experience { margin-top: 3rem; padding-top: 3rem; border-top: 1px solid var(--line); }
@@ -155,7 +168,7 @@ footer a { display: flex; align-items: center; min-height: 44px; }
   .about, .experience, .contact { grid-template-columns: 1fr; gap: 1.75rem; }
   .about { padding-block: 2.5rem 3.5rem; }
   .about h2, .contact h2 { max-width: none; }
-  .work { padding-block: 3rem; border-radius: 24px 24px 0 0; }
+  .work { padding-block: 3rem; }
   .work h2 { margin-bottom: 2.5rem; }
   .experience-heading p { margin-top: .75rem; }
   .experience-heading .text-link { margin-top: .5rem; }
@@ -166,9 +179,9 @@ footer a { display: flex; align-items: center; min-height: 44px; }
   footer > div { gap: 1.5rem; }
 }
 
-@keyframes section-tint {
-  from { background-color: var(--paper); }
-  to { background-color: var(--section-tint); }
+@keyframes section-expand {
+  from { clip-path: inset(0 var(--section-inset) round 64px); }
+  to { clip-path: inset(0 0 round 0); }
 }
 
 @keyframes heading-arrive {
@@ -178,13 +191,12 @@ footer a { display: flex; align-items: center; min-height: 44px; }
 
 @media (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) and (animation-range: entry 0% entry 100%) {
-    .work, .direction {
-      animation: section-tint linear both;
-      animation-timeline: view();
+    .work, .direction { view-timeline: --section block; }
+    .work::before, .direction::before {
+      animation: section-expand linear both;
+      animation-timeline: --section;
       animation-range: entry 0% entry 100%;
     }
-    .work { --section-tint: var(--green); }
-    .direction { --section-tint: var(--lilac-paper); }
   }
 
   #direction-title.arrived { animation: heading-arrive 320ms cubic-bezier(.2, 0, 0, 1); }
