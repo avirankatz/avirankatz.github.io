@@ -144,7 +144,7 @@ nav a:hover { text-decoration: underline; }
   background: var(--ink);
 }
 .music-title { flex: 1; font-weight: 500; }
-.music-icon { position: relative; width: 20px; height: 20px; flex-shrink: 0; }
+.music-icon { position: relative; width: 20px; height: 20px; flex-shrink: 0; color: oklch(0.269 0.065 301.197); }
 .music-icon::before, .music-icon::after {
   content: '';
   position: absolute;
