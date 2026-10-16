@@ -170,6 +170,12 @@ nav a:hover { text-decoration: underline; }
   box-shadow: 0 4px 24px #2436271a, 0 1px 4px #24362712;
 }
 .music-floating .music-art, .music-floating .music-title { display: none; }
+.music-bars { display: none; position: absolute; inset: 0; align-items: center; justify-content: center; gap: 2px; }
+.music-bars > span { width: 2px; height: 18px; border-radius: 1px; background: currentColor; transform: scaleY(.45); }
+.music-bars > span:nth-child(2), .music-bars > span:nth-child(4) { transform: scaleY(.7); }
+.music-bars > span:nth-child(3) { transform: scaleY(1); }
+.music-floating.is-playing .music-icon::after { opacity: 0; }
+.music-floating.is-playing .music-bars { display: flex; }
 
 .music-status { display: block; font-size: var(--small); color: var(--muted); }
 .music-status:empty { display: none; }

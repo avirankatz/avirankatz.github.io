@@ -158,6 +158,12 @@
       const player = slot.querySelector('button');
       const floating = player.cloneNode(true);
       floating.classList.add('music-floating');
+      const visualizer = document.createElement('span');
+      visualizer.className = 'music-bars';
+      visualizer.setAttribute('aria-hidden', 'true');
+      visualizer.innerHTML = '<span></span>'.repeat(5);
+      floating.querySelector('.music-icon').append(visualizer);
+      const bars = [...visualizer.children];
       floating.hidden = true;
       document.body.append(floating);
       slot.hidden = false;
@@ -168,6 +174,26 @@
       const buttons = [player, floating];
       let activated = false;
       let visible = true;
+      let context, analyser, frequencies;
+      let frame = 0;
+      const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+      const bands = [60, 150, 300, 600, 1000, 1800];
+
+      function draw() {
+        frame = 0;
+        if (!analyser || audio.paused || audio.ended || floating.hidden || document.hidden || reducedMotion.matches) return;
+        analyser.getByteFrequencyData(frequencies);
+        const binWidth = context.sampleRate / analyser.fftSize;
+        bars.forEach((bar, index) => {
+          const start = Math.max(1, Math.floor(bands[index] / binWidth));
+          const end = Math.min(frequencies.length, Math.ceil(bands[index + 1] / binWidth));
+          let energy = 0;
+          for (let bin = start; bin < end; bin++) energy += frequencies[bin];
+          const level = energy / Math.max(1, end - start) / 255;
+          bar.style.transform = `scaleY(${0.15 + level * 0.85})`;
+        });
+        frame = requestAnimationFrame(draw);
+      }
 
       function update() {
         const playing = !audio.paused && !audio.ended;
@@ -177,7 +203,15 @@
           button.setAttribute('aria-label', `${playing ? 'Pause' : 'Play'} Morning Brew`);
         }
         floating.hidden = !activated || visible;
+        cancelAnimationFrame(frame);
+        draw();
       }
+
+      document.addEventListener('visibilitychange', update);
+      reducedMotion.addEventListener('change', () => {
+        bars.forEach(bar => bar.style.removeProperty('transform'));
+        update();
+      });
 
       async function toggle() {
         if (!audio.paused) {
@@ -187,6 +221,16 @@
         status.textContent = '';
         if (audio.error) audio.load();
         try {
+          if (!context && window.AudioContext) {
+            context = new AudioContext();
+            analyser = context.createAnalyser();
+            analyser.fftSize = 2048;
+            analyser.smoothingTimeConstant = 0.65;
+            frequencies = new Uint8Array(analyser.frequencyBinCount);
+            context.createMediaElementSource(audio).connect(analyser);
+            analyser.connect(context.destination);
+          }
+          if (context?.state === 'suspended') await context.resume();
           await audio.play();
         } catch (error) {
           if (error.name !== 'AbortError') status.textContent = 'Audio couldn’t play. Please try again.';
