@@ -36,6 +36,15 @@
           <img src="aviran.avif" alt="Aviran Katz" width="420" height="470" fetchpriority="high">
         </div>
         <figcaption>Israel · Hebrew / English</figcaption>
+        <div class="music-slot" hidden>
+          <button class="music-player" type="button" aria-label="Play Morning Brew">
+            <span class="music-art" aria-hidden="true"><span></span></span>
+            <span class="music-title">Morning Brew</span>
+
+            <span class="music-icon" aria-hidden="true"></span>
+          </button>
+        </div>
+        <span class="music-status" role="status"></span>
       </figure>
     </section>
    <section id="work" class="work" aria-labelledby="work-title">
@@ -144,6 +153,72 @@
     </div>
   </footer>
   <script>
+    {
+      const slot = document.querySelector('.music-slot');
+      const player = slot.querySelector('button');
+      const floating = player.cloneNode(true);
+      floating.classList.add('music-floating');
+      floating.hidden = true;
+      document.body.append(floating);
+      slot.hidden = false;
+
+      const audio = new Audio();
+      audio.preload = 'none';
+      const status = document.querySelector('.music-status');
+      const buttons = [player, floating];
+      let activated = false;
+      let visible = true;
+
+      function update() {
+        const playing = !audio.paused && !audio.ended;
+        const buffering = playing && audio.readyState < 3;
+        for (const button of buttons) {
+          button.classList.toggle('is-playing', playing);
+
+          button.setAttribute('aria-label', `${playing ? 'Pause' : 'Play'} Morning Brew`);
+          button.setAttribute('aria-busy', String(buffering));
+        }
+        floating.hidden = !activated || visible;
+      }
+
+      async function toggle() {
+        if (!audio.paused) {
+          audio.pause();
+          return;
+        }
+        status.textContent = '';
+        if (!audio.getAttribute('src')) audio.src = 'morning-brew.mp3';
+        try {
+          await audio.play();
+          activated = true;
+          update();
+        } catch (error) {
+          if (error.name !== 'AbortError') status.textContent = 'Audio couldn’t play. Please try again.';
+          update();
+        }
+      }
+
+      buttons.forEach(button => button.addEventListener('click', toggle));
+      for (const event of ['play', 'playing', 'pause', 'ended', 'waiting', 'canplay']) {
+        audio.addEventListener(event, update);
+      }
+      audio.addEventListener('error', () => {
+        status.textContent = 'Audio couldn’t load. Please try again later.';
+        audio.removeAttribute('src');
+        audio.load();
+        update();
+      });
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) audio.pause();
+      });
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(([entry]) => {
+          visible = entry.isIntersecting;
+          update();
+        }).observe(slot);
+      }
+    }
+
     if ('IntersectionObserver' in window) {
       const heading = document.getElementById('direction-title');
       const observer = new IntersectionObserver(entries => {
