@@ -162,7 +162,7 @@
       document.body.append(floating);
       slot.hidden = false;
 
-      const audio = new Audio();
+      const audio = new Audio('morning-brew.mp3');
       audio.preload = 'none';
       const status = document.querySelector('.music-status');
       const buttons = [player, floating];
@@ -171,12 +171,10 @@
 
       function update() {
         const playing = !audio.paused && !audio.ended;
-        const buffering = playing && audio.readyState < 3;
+        if (playing) activated = true;
         for (const button of buttons) {
           button.classList.toggle('is-playing', playing);
-
           button.setAttribute('aria-label', `${playing ? 'Pause' : 'Play'} Morning Brew`);
-          button.setAttribute('aria-busy', String(buffering));
         }
         floating.hidden = !activated || visible;
       }
@@ -187,29 +185,21 @@
           return;
         }
         status.textContent = '';
-        if (!audio.getAttribute('src')) audio.src = 'morning-brew.mp3';
+        if (audio.error) audio.load();
         try {
           await audio.play();
-          activated = true;
-          update();
         } catch (error) {
           if (error.name !== 'AbortError') status.textContent = 'Audio couldn’t play. Please try again.';
-          update();
         }
       }
 
       buttons.forEach(button => button.addEventListener('click', toggle));
-      for (const event of ['play', 'playing', 'pause', 'ended', 'waiting', 'canplay']) {
+      for (const event of ['playing', 'pause', 'ended']) {
         audio.addEventListener(event, update);
       }
       audio.addEventListener('error', () => {
         status.textContent = 'Audio couldn’t load. Please try again later.';
-        audio.removeAttribute('src');
-        audio.load();
-        update();
-      });
-      document.addEventListener('visibilitychange', () => {
-        if (document.hidden) audio.pause();
+        audio.pause();
       });
       if ('IntersectionObserver' in window) {
         new IntersectionObserver(([entry]) => {
