@@ -110,11 +110,13 @@ nav a:hover { text-decoration: underline; }
   text-align: left;
   cursor: pointer;
   box-shadow: 0 1px 2px #24362708, inset 0 0 0 1px #2436270d;
-  transition: background .2s, box-shadow .2s, scale .2s;
+  transition: background-color .15s;
 }
 .music-player[hidden], .music-slot[hidden] { display: none; }
-.music-player:hover { background: #e2d9ec; box-shadow: 0 3px 10px #2436270d, inset 0 0 0 1px #24362714; }
-.music-player:active { scale: .96; }
+@media (hover: hover) {
+  .music-player:hover { background: #e2d9ec; }
+}
+.music-player:active { background: #d8cce5; }
 .music-player:focus-visible { outline: 3px solid #705098; outline-offset: 5px; }
 .music-art {
   display: grid;
@@ -148,12 +150,12 @@ nav a:hover { text-decoration: underline; }
   position: absolute;
   inset: 3px;
   background: currentColor;
-  transition: opacity .18s, scale .18s;
+  transition: opacity .15s;
 }
 .music-icon::before { clip-path: polygon(22% 0, 100% 50%, 22% 100%); }
-.music-icon::after { clip-path: polygon(0 0, 35% 0, 35% 100%, 0 100%, 0 0, 65% 0, 100% 0, 100% 100%, 65% 100%, 65% 0); opacity: 0; scale: .5; }
-.is-playing .music-icon::before { opacity: 0; scale: .5; }
-.is-playing .music-icon::after { opacity: 1; scale: 1; }
+.music-icon::after { clip-path: polygon(0 0, 35% 0, 35% 100%, 0 100%, 0 0, 65% 0, 100% 0, 100% 100%, 65% 100%, 65% 0); opacity: 0; }
+.is-playing .music-icon::before { opacity: 0; }
+.is-playing .music-icon::after { opacity: 1; }
 
 .music-floating {
   position: fixed;
@@ -165,7 +167,6 @@ nav a:hover { text-decoration: underline; }
   padding: 16px;
   justify-content: center;
   border-radius: 16px 0 0 16px;
-  transform-origin: right center;
   box-shadow: 0 4px 24px #2436271a, 0 1px 4px #24362712;
 }
 .music-floating .music-art, .music-floating .music-title { display: none; }
